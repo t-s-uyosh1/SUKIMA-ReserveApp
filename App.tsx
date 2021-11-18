@@ -3,10 +3,10 @@ import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import FirstView from './components/screens/FirstView';
 import LogInScreen from './components/screens/LogInScreen';
 
 export default function App() {
-  const [aaa,iiii] = useState("")
   const Stack = createStackNavigator();
   return (
     <NavigationContainer>
@@ -19,7 +19,14 @@ export default function App() {
             cardStyleInterpolator:
               CardStyleInterpolators.forFadeFromBottomAndroid,
           }}
-          
+        />
+        <Stack.Screen
+          name="FirstView"
+          component={FirstView}
+          options={{
+            cardStyleInterpolator:
+              CardStyleInterpolators.forFadeFromBottomAndroid,
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

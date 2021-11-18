@@ -7,16 +7,45 @@ import {
     StyleSheet,
     TouchableOpacity,
     Alert,
+    Linking,
   } from "react-native";
-import React,{ useState } from "react";
+import React,{ useEffect, useState } from "react";
+import { supabase } from "../../lib/supabase";
+
 
   type Props = {
     navigation: StackNavigationProp<any>;
   };
 
+
 const LogInScreen = ({navigation}:Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("")
+  useEffect(()=>{
+    const user = supabase.auth.user()
+    if(user){
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "FirstView" }],
+      });
+    }
+  },[])
+  const handlePress = async() => {
+    const { user, session, error } = await supabase.auth.signIn({
+      email: email,
+      password: password
+    })
+    if(user){
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "FirstView" }],
+      });
+    }
+    if(error){
+      console.log(error.message)
+      console.log(error.status)
+    }
+  }
     return(
         <View style={styles.container}>
         <View style={styles.inner}>
@@ -43,16 +72,14 @@ const LogInScreen = ({navigation}:Props) => {
             secureTextEntry
             textContentType="password"
           />
-          <Button label="Submit" onPress={()=>{}} />
+          <Button label="Submit" onPress={()=>{
+            handlePress()
+          }} />
           <View style={styles.footer}>
             <Text style={styles.footerText}>Not registered?</Text>
-            <TouchableOpacity
-              onPress={() => {
-                
-              }}
-            >
-              <Text style={styles.fotterLink}>Sign up here!</Text>
-            </TouchableOpacity>
+              <Text style={styles.fotterLink}　onPress={()=>{
+                Linking.openURL("https://sukimaform.vercel.app/form")
+              }}>Sign up here!</Text>
           </View>
         </View>
       </View>   
