@@ -7,7 +7,7 @@ import { User } from "@supabase/gotrue-js";
     navigation: StackNavigationProp<any>;
 };
 
-const FirstView = ({ navigation }:Props) => {
+const FirstView = ({ navigation }) => {
   const [userData, addUserData] = useState<User | {}>({})
   useEffect(() => {
     const user: User | null = supabase.auth.user()

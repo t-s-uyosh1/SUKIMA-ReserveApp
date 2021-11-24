@@ -10,7 +10,7 @@ import { User } from "@supabase/gotrue-js";
 const FirstView = ({ navigation }:Props) => {
   const [userData, addUserData] = useState<User | {}>({})
   useEffect(() => {
-    const user: User | null = supabase.auth.user()
+    const user = supabase.auth.user()
     if (user) {
       addUserData(user)
     } else {

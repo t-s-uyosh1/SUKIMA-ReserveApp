@@ -1,24 +1,22 @@
-import { View,StyleSheet, Alert } from "react-native"
+import { View,StyleSheet } from "react-native"
 import React, { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabase"
 import { StackNavigationProp } from "@react-navigation/stack";
-import { User } from "@supabase/gotrue-js";
  type Props = {
     navigation: StackNavigationProp<any>;
 };
 
 const FirstView = ({ navigation }:Props) => {
-  const [userData, addUserData] = useState<User | {}>({})
+  const [userData,addUserData] = useState({})
   useEffect(() => {
-    const user: User | null = supabase.auth.user()
+    const user = supabase.auth.user()
     if (user) {
       addUserData(user)
     } else {
-      // navigation.reset({
-      //   index: 0,
-      //   routes: [{ name: "LogIn" }],
-      // });
-      Alert.alert("ログインしてません")
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "LogIn" }],
+      });
     }
   })
     return(

@@ -13,6 +13,7 @@ const FirstView = ({ navigation }:Props) => {
     const user: User | null = supabase.auth.user()
     if (user) {
       addUserData(user)
+      console.log
     } else {
       // navigation.reset({
       //   index: 0,

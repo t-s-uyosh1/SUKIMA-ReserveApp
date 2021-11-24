@@ -31,24 +31,20 @@ const LogInScreen = ({navigation}:Props) => {
     }
   },[])
   const handlePress = async() => {
-    // const { user, session, error } = await supabase.auth.signIn({
-    //   email: email,
-    //   password: password
-    // })
-    // if(user){
-    //   navigation.reset({
-    //     index: 0,
-    //     routes: [{ name: "FirstView" }],
-    //   });
-    // }
-    // if(error){
-    //   console.log(error.message)
-    //   console.log(error.status)
-    // }
-    navigation.reset({
+    const { user, session, error } = await supabase.auth.signIn({
+      email: email,
+      password: password
+    })
+    if(user){
+      navigation.reset({
         index: 0,
         routes: [{ name: "FirstView" }],
       });
+    }
+    if(error){
+      console.log(error.message)
+      console.log(error.status)
+    }
   }
     return(
         <View style={styles.container}>
@@ -86,7 +82,7 @@ const LogInScreen = ({navigation}:Props) => {
               }}>Sign up here!</Text>
           </View>
         </View>
-      </View>
+      </View>   
     )
 }
 
@@ -114,7 +110,7 @@ const styles = StyleSheet.create({
       paddingHorizontal: 8,
       marginBottom: 16,
     },
-
+  
     footerText: {
       fontSize: 14,
       lineHeight: 24,
