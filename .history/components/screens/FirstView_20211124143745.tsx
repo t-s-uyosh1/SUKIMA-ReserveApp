@@ -1,11 +1,4 @@
-import Button from "../Button";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Alert,
-} from "react-native"
+import { View,StyleSheet, Alert } from "react-native"
 import React, { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabase"
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -29,23 +22,8 @@ const FirstView = ({ navigation }:Props) => {
     }
   })
     return(
-        <View style={styles.container}>
-        <View style={styles.inner}>
-          <Text style={styles.title}>予約状況</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={(text) => {
-              (text);
-            }}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            placeholder="Email Address"
-            textContentType="emailAddress"
-            />
-          <Button label="確認" onPress={()=>{
+        <View>
 
-          }} />
-          </View>
         </View>
     )
 }
@@ -54,17 +32,13 @@ const styles = StyleSheet.create({
   container: {
       flex: 1,
       backgroundColor: "#f0f4f8",
-  },
+    },
+
   inner: {
       paddingHorizontal: 27,
       paddingVertical: 24,
-  },
-  title: {
-      fontSize: 24,
-      lineHeight: 32,
-      fontWeight: "bold",
-      marginBottom: 24,
-  },
+    },
+
   input: {
       fontSize: 16,
       height: 48,

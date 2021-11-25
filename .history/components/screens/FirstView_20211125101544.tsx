@@ -31,7 +31,7 @@ const FirstView = ({ navigation }:Props) => {
     return(
         <View style={styles.container}>
         <View style={styles.inner}>
-          <Text style={styles.title}>予約状況</Text>
+          <Text style={styles.title}>待ち状態</Text>
           <TextInput
             style={styles.input}
             onChangeText={(text) => {

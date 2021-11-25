@@ -1,7 +1,5 @@
-import Button from "../Button";
 import {
   View,
-  Text,
   StyleSheet,
   TextInput,
   Alert,
@@ -31,7 +29,7 @@ const FirstView = ({ navigation }:Props) => {
     return(
         <View style={styles.container}>
         <View style={styles.inner}>
-          <Text style={styles.title}>予約状況</Text>
+          <View style={styles.title}>
           <TextInput
             style={styles.input}
             onChangeText={(text) => {
@@ -42,9 +40,7 @@ const FirstView = ({ navigation }:Props) => {
             placeholder="Email Address"
             textContentType="emailAddress"
             />
-          <Button label="確認" onPress={()=>{
-
-          }} />
+            </View>
           </View>
         </View>
     )
