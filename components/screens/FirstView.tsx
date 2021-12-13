@@ -6,14 +6,17 @@ import {
   TextInput,
   Alert,
   ScrollView,
+  RefreshControl,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { createStackNavigator } from "@react-navigation/stack";
 import { User } from "@supabase/gotrue-js";
 import ListItem from "../ListItem";
 import ListHeader from "../ListHeader";
 import "react-native-url-polyfill/auto";
+import { NavigationContainer } from "@react-navigation/native";
 
 type Props = {
   navigation: StackNavigationProp<any>;
@@ -29,11 +32,18 @@ type reserveList = {
 }[];
 
 const FirstView = ({ navigation }: Props) => {
-  //古い順にソート
+  const getDatetime = (dt: Date) => {
+    var y = dt.getFullYear();
+    var m = ("00" + (dt.getMonth() + 1)).slice(-2);
+    var d = ("00" + dt.getDate()).slice(-2);
+    return y + "-" + m + "-" + d;
+  };
+
   const fetchrese = async () => {
     const { data: rese_list, error } = await supabase
       .from("rese_t")
       .select("*")
+      //古い順にソート
       .order("r_day", { ascending: false });
     if (error) {
       Alert.alert(error.message);
@@ -42,8 +52,27 @@ const FirstView = ({ navigation }: Props) => {
       addList(rese_list);
     }
   };
+  //セレクト(今日の日付)
+  const todaysfecth = async () => {
+    const { data: resetodayslist, error } = await supabase
+      .from("rese_t")
+      .select("*")
+      .order("r_day", { ascending: false })
+      .eq("r_day", getDatetime(new Date()));
+    //セレクトしたものを入れる
+    if (resetodayslist) {
+      // console.log("-------------------------------");
+      // console.log(resetodayslist);
+      addList(resetodayslist);
+    }
+    if (error) {
+      console.log(error.message);
+    }
+  };
+
   useEffect(() => {
     fetchrese();
+    todaysfecth();
   }, []);
 
   const [userData, addUserData] = useState<User | {}>({});
@@ -52,22 +81,22 @@ const FirstView = ({ navigation }: Props) => {
     const user: User | null = supabase.auth.user();
     if (user) {
       addUserData(user);
-      //セレクト(今日の日付)
-      //セレクトしたものを入れる
+      todaysfecth();
     } else {
-      // navigation.reset({
-      //   index: 0,
-      //   routes: [{ name: "LogIn" }],
-      // });
-      //Alert.alert("ログインしてません")
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "LogIn" }],
+      });
+      //Alert.alert());
     }
   }, []);
   const handlePress = async () => {
     navigation.reset({
       index: 0,
-      routes: [{ name: "LogInScreen" }],
+      routes: [{ name: "LogIn" }],
     });
   };
+
   return (
     <ScrollView style={styles.container}>
       <ListHeader />
@@ -83,13 +112,13 @@ const FirstView = ({ navigation }: Props) => {
           />
         );
       })}
-      <View style={styles.button}>
-        {/* <Button
+      <View style={styles.buttonPositon}>
+        <Button
           label="BACK"
           onPress={() => {
             handlePress();
           }}
-        /> */}
+        />
       </View>
     </ScrollView>
   );
@@ -119,13 +148,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginBottom: 16,
   },
-  button: {
-    width: 30,
-    height: 30,
+  buttonPositon: {
+    padding: 10,
     position: "relative",
-    bottom: 0,
     left: 0,
-    display: "flex",
+    bottom: 0,
   },
 });
 

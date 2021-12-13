@@ -5,7 +5,7 @@ import {
 } from "@react-navigation/stack";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Button, StyleSheet, Text, View } from "react-native";
 import FirstView from "./components/screens/FirstView";
 import LogInScreen from "./components/screens/LogInScreen";
 

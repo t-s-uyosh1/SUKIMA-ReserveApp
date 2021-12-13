@@ -34,20 +34,20 @@ const LogInScreen = ({ navigation }: Props) => {
     unlockOrientation();
   }, []);
   const handlePress = async () => {
-    // const { user, session, error } = await supabase.auth.signIn({
-    //   email: email,
-    //   password: password
-    // })
-    // if(user){
-    //   navigation.reset({
-    //     index: 0,
-    //     routes: [{ name: "FirstView" }],
-    //   });
-    // }
-    // if(error){
-    //   console.log(error.message)
-    //   console.log(error.status)
-    // }
+    const { user, session, error } = await supabase.auth.signIn({
+      email: email,
+      password: password,
+    });
+    if (user) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "FirstView" }],
+      });
+    }
+    if (error) {
+      console.log(error.message);
+      console.log(error.status);
+    }
     navigation.reset({
       index: 0,
       routes: [{ name: "FirstView" }],
