@@ -5,7 +5,6 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  TouchableOpacity,
   Alert,
   Linking,
 } from "react-native";
@@ -28,11 +27,13 @@ const LogInScreen = ({ navigation }: Props) => {
         routes: [{ name: "FirstView" }],
       });
     }
+    //画面再描画
     async function unlockOrientation() {
       await ScreenOrientation.unlockAsync();
     }
     unlockOrientation();
   }, []);
+
   const handlePress = async () => {
     const { user, session, error } = await supabase.auth.signIn({
       email: email,
@@ -48,11 +49,12 @@ const LogInScreen = ({ navigation }: Props) => {
       console.log(error.message);
       console.log(error.status);
     }
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "FirstView" }],
-    });
+    // navigation.reset({
+    //   index: 0,
+    //   routes: [{ name: "FirstView" }],
+    // });
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.inner}>
