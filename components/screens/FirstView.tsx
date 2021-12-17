@@ -8,15 +8,13 @@ import {
   ScrollView,
   RefreshControl,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { supabase } from "../../lib/supabase";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { createStackNavigator } from "@react-navigation/stack";
 import { User } from "@supabase/gotrue-js";
 import ListItem from "../ListItem";
 import ListHeader from "../ListHeader";
 import "react-native-url-polyfill/auto";
-import { NavigationContainer } from "@react-navigation/native";
 
 type Props = {
   navigation: StackNavigationProp<any>;
@@ -29,9 +27,28 @@ type reserveList = {
   r_name: string;
   r_nin: number;
   r_time: string;
+  shop_id: string;
 }[];
 
+const sleep = (msec: any) =>
+  new Promise((resolve) => setTimeout(resolve, msec));
+
 const FirstView = ({ navigation }: Props) => {
+  //supabaseからデータ習得行う処理
+  const fetchrese = async () => {
+    const { data: rese_list, error } = await supabase
+      .from("rese_t")
+      .select("*")
+      .order("r_day", { ascending: false });
+    if (rese_list) {
+      addList(rese_list);
+    }
+    if (error) {
+      Alert.alert(error.message);
+    }
+  };
+
+  //今日日付を取得する
   const getDatetime = (dt: Date) => {
     var y = dt.getFullYear();
     var m = ("00" + (dt.getMonth() + 1)).slice(-2);
@@ -39,41 +56,22 @@ const FirstView = ({ navigation }: Props) => {
     return y + "-" + m + "-" + d;
   };
 
-  const fetchrese = async () => {
-    const { data: rese_list, error } = await supabase
-      .from("rese_t")
-      .select("*")
-      //古い順にソート
-      .order("r_day", { ascending: false });
-    if (error) {
-      Alert.alert(error.message);
-    }
-    if (rese_list) {
-      addList(rese_list);
-    }
-  };
-  //セレクト(今日の日付)
-  const todaysfecth = async () => {
-    const { data: resetodayslist, error } = await supabase
-      .from("rese_t")
-      .select("*")
-      .order("r_day", { ascending: false })
-      .eq("r_day", getDatetime(new Date()));
-    //セレクトしたものを入れる
-    if (resetodayslist) {
-      // console.log("-------------------------------");
-      // console.log(resetodayslist);
-      addList(resetodayslist);
-    }
-    if (error) {
-      console.log(error.message);
-    }
-  };
-
-  useEffect(() => {
+  // リロード処理　更新処理を行っているかどうか
+  const [refreshing, setRefreshing] = useState(false);
+  // 任意の更新処理
+  const anyFunction = useCallback(async () => {
+    setRefreshing(true);
+    // 非同期処理(実際にはここでデータの更新を行う)
+    await sleep(1000);
+    setRefreshing(false);
+    //再取得をおこなう
+    //todaysfecth();
     fetchrese();
-    todaysfecth();
   }, []);
+
+  // useEffect(() => {
+  // fetchrese();
+  // }, []);
 
   const [userData, addUserData] = useState<User | {}>({});
   const [listData, addList] = useState<reserveList | []>([]);
@@ -81,15 +79,36 @@ const FirstView = ({ navigation }: Props) => {
     const user: User | null = supabase.auth.user();
     if (user) {
       addUserData(user);
+      //セレクト(今日の日付)
+      const todaysfecth = async () => {
+        const { data: resetodayslist, error } = await supabase
+          .from("rese_t")
+          .select("*")
+          .match({ shop_id: user.id })
+          .eq("r_day", getDatetime(new Date()))
+          .order("r_day", { ascending: false });
+        //セレクトしたものをリストに入れる
+        if (resetodayslist) {
+          //console.log(resetodayslist);
+          addList(resetodayslist);
+        }
+        if (error) {
+          console.log(error.message);
+        }
+      };
       todaysfecth();
+      // console.log("----------------");
+      // console.log(user.id);
     } else {
       navigation.reset({
         index: 0,
         routes: [{ name: "LogIn" }],
       });
-      //Alert.alert());
+      //Alert.alert("ログインできていません");
     }
   }, []);
+
+  //ボタンを押したらの処理
   const handlePress = async () => {
     navigation.reset({
       index: 0,
@@ -98,7 +117,12 @@ const FirstView = ({ navigation }: Props) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={anyFunction} />
+      }
+    >
       <ListHeader />
       {listData.map((item) => {
         return (
@@ -120,6 +144,7 @@ const FirstView = ({ navigation }: Props) => {
           }}
         />
       </View>
+      <Text>下に引っ張るとリロードするよ</Text>
     </ScrollView>
   );
 };
