@@ -36,17 +36,34 @@ const sleep = (msec: any) =>
 const FirstView = ({ navigation }: Props) => {
   //supabaseからデータ習得行う処理
   const fetchrese = async () => {
-    const { data: rese_list, error } = await supabase
-      .from("rese_t")
-      .select("*")
-      .order("r_day", { ascending: false });
-    if (rese_list) {
-      addList(rese_list);
-    }
-    if (error) {
-      Alert.alert(error.message);
+    if (userData) {
+      const { data: rese_list, error } = await supabase
+        .from("rese_t")
+        .select("*")
+        .match({ shop_id: userData.id })
+        .order("r_day", { ascending: false });
+      if (rese_list) {
+        console.log(rese_list);
+        addList(rese_list);
+      }
+      if (error) {
+        Alert.alert(error.message);
+      }
     }
   };
+  // リロード処理　更新処理を行っているかどうか
+  const [refreshing, setRefreshing] = useState(false);
+  const [userData, addUserData] = useState<User | undefined>();
+  const [listData, addList] = useState<reserveList | []>([]);
+  // 任意の更新処理
+  const anyFunction = useCallback(async () => {
+    setRefreshing(true);
+    // 非同期処理(実際にはここでデータの更新を行う)
+    await sleep(1000);
+    setRefreshing(false);
+    //再取得をおこなう
+    fetchrese();
+  }, []);
 
   //今日日付を取得する
   const getDatetime = (dt: Date) => {
@@ -55,65 +72,54 @@ const FirstView = ({ navigation }: Props) => {
     var d = ("00" + dt.getDate()).slice(-2);
     return y + "-" + m + "-" + d;
   };
+  //セレクト(今日の日付)
+  const todaysfecth = async () => {
+    if (userData) {
+      const { data: resetodayslist, error } = await supabase
+        .from("rese_t")
+        .select("*")
+        .eq("r_day", getDatetime(new Date()))
+        .match({ shop_id: userData.id })
+        .order("r_day", { ascending: false });
 
-  // リロード処理　更新処理を行っているかどうか
-  const [refreshing, setRefreshing] = useState(false);
-  // 任意の更新処理
-  const anyFunction = useCallback(async () => {
-    setRefreshing(true);
-    // 非同期処理(実際にはここでデータの更新を行う)
-    await sleep(1000);
-    setRefreshing(false);
-    //再取得をおこなう
-    //todaysfecth();
-    fetchrese();
+      if (resetodayslist) {
+        addList(resetodayslist);
+      }
+      if (error) {
+        console.log(error.message);
+      }
+    }
+  };
+  useEffect(() => {
+    // if (userData) {
+    //   const reseT = supabase
+    //     .from("rese_t")
+    //     .on("UPDATE", (payload) => {
+    //       console.log("Change received!", payload);
+    //       if (payload.new.shop_id === userData.id) {
+    //         console.log("aaaa");
+    //       }
+    //     })
+    //     .subscribe();
+    // }
   }, []);
 
-  // useEffect(() => {
-  // fetchrese();
-  // }, []);
-
-  const [userData, addUserData] = useState<User | {}>({});
-  const [listData, addList] = useState<reserveList | []>([]);
   useEffect(() => {
     const user: User | null = supabase.auth.user();
     if (user) {
       addUserData(user);
-      //セレクト(今日の日付)
-      const todaysfecth = async () => {
-        const { data: resetodayslist, error } = await supabase
-          .from("rese_t")
-          .select("*")
-          .match({ shop_id: user.id })
-          .eq("r_day", getDatetime(new Date()))
-          .order("r_day", { ascending: false });
-        //セレクトしたものをリストに入れる
-        if (resetodayslist) {
-          //console.log(resetodayslist);
-          addList(resetodayslist);
-        }
-        if (error) {
-          console.log(error.message);
-        }
-      };
-      todaysfecth();
-      // console.log("----------------");
-      // console.log(user.id);
+      fetchrese();
     } else {
       navigation.reset({
         index: 0,
         routes: [{ name: "LogIn" }],
       });
-      //Alert.alert("ログインできていません");
     }
   }, []);
 
-  //ボタンを押したらの処理
+  //今日の予約確認ボタンを押したらの処理
   const handlePress = async () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "LogIn" }],
-    });
+    todaysfecth();
   };
 
   return (
@@ -136,14 +142,13 @@ const FirstView = ({ navigation }: Props) => {
           />
         );
       })}
-      <View style={styles.buttonPositon}>
-        <Button
-          label="BACK"
-          onPress={() => {
-            handlePress();
-          }}
-        />
-      </View>
+
+      <Button
+        label="今日の予約"
+        onPress={() => {
+          handlePress();
+        }}
+      />
       <Text>下に引っ張るとリロードするよ</Text>
     </ScrollView>
   );
@@ -174,10 +179,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   buttonPositon: {
-    padding: 10,
+    paddingTop: 20,
     position: "relative",
-    left: 0,
-    bottom: 0,
+    margin: "auto",
   },
 });
 
