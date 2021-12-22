@@ -35,15 +35,21 @@ const sleep = (msec: any) =>
 
 const FirstView = ({ navigation }: Props) => {
   //supabaseからデータ習得行う処理
+  
+  // リロード処理　更新処理を行っているかどうか
+  const [refreshing, setRefreshing] = useState(false);
+  const [userData, addUserData] = useState<User | undefined>();
+  const [listData, addList] = useState<reserveList | []>([]);
+
   const fetchrese = async () => {
-    if (userData) {
+    const user: User | null = supabase.auth.user();
+    if (user) {
       const { data: rese_list, error } = await supabase
         .from("rese_t")
         .select("*")
-        .match({ shop_id: userData.id })
+        .match({ shop_id: user.id })
         .order("r_day", { ascending: false });
       if (rese_list) {
-        console.log(rese_list);
         addList(rese_list);
       }
       if (error) {
@@ -51,10 +57,7 @@ const FirstView = ({ navigation }: Props) => {
       }
     }
   };
-  // リロード処理　更新処理を行っているかどうか
-  const [refreshing, setRefreshing] = useState(false);
-  const [userData, addUserData] = useState<User | undefined>();
-  const [listData, addList] = useState<reserveList | []>([]);
+  
   // 任意の更新処理
   const anyFunction = useCallback(async () => {
     setRefreshing(true);
@@ -90,19 +93,19 @@ const FirstView = ({ navigation }: Props) => {
       }
     }
   };
-  useEffect(() => {
-    // if (userData) {
-    //   const reseT = supabase
-    //     .from("rese_t")
-    //     .on("UPDATE", (payload) => {
-    //       console.log("Change received!", payload);
-    //       if (payload.new.shop_id === userData.id) {
-    //         console.log("aaaa");
-    //       }
-    //     })
-    //     .subscribe();
-    // }
-  }, []);
+  // useEffect(() => {
+  //   if (userData) {
+  //     const reseT = supabase
+  //       .from("rese_t")
+  //       .on("UPDATE", (payload) => {
+  //         console.log("Change received!", payload);
+  //         if (payload.new.shop_id === userData.id) {
+  //           console.log("aaaa");
+  //         }
+  //       })
+  //       .subscribe();
+  //   }
+  // }, []);
 
   useEffect(() => {
     const user: User | null = supabase.auth.user();
